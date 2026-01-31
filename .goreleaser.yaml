@@ -1,0 +1,65 @@
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+    - go generate ./...
+
+builds:
+  - main: ./main.go
+    binary: wiz
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+      - -X github.com/firewood-buck-3000/wiz/internal/license.SigningKeyHex={{ .Env.WIZ_SIGNING_KEY_HEX }}
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+
+archives:
+  - format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        format: zip
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+      - "^chore:"
+
+release:
+  github:
+    owner: firewood-buck-3000
+    name: wiz
+  draft: false
+  prerelease: auto
+  name_template: "v{{ .Version }}"
+
+# Uncomment when you create a homebrew tap repo:
+# brews:
+#   - repository:
+#       owner: firewood-buck-3000
+#       name: homebrew-tap
+#     homepage: https://github.com/firewood-buck-3000/wiz
+#     description: Magical git branch contexts for AI coding workflows
+#     license: MIT
+#     install: |
+#       bin.install "wiz"
+#     test: |
+#       system "#{bin}/wiz", "--help"

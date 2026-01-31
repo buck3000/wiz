@@ -4,6 +4,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -12,9 +13,21 @@ import (
 	"time"
 )
 
-// signingKey is the HMAC-SHA256 key used to verify license JWTs.
-// In production, replace this with your actual secret or switch to RSA/Ed25519.
-var signingKey = []byte("wiz-license-signing-key-replace-in-production")
+// SigningKeyHex is the HMAC-SHA256 key used to verify license JWTs.
+// Set at build time via:
+//
+//	-ldflags "-X github.com/firewood-buck-3000/wiz/internal/license.SigningKeyHex=<hex>"
+//
+// Falls back to a dev-only default if unset.
+var SigningKeyHex = "77697a2d6465762d6b65792d6e6f742d666f722d70726f64" // "wiz-dev-key-not-for-prod" in hex
+
+func getSigningKey() []byte {
+	b, err := hex.DecodeString(SigningKeyHex)
+	if err != nil {
+		return []byte("wiz-dev-key-not-for-prod")
+	}
+	return b
+}
 
 var (
 	cachedTier   Tier
@@ -100,7 +113,7 @@ func validateKey(token string) (Tier, error) {
 	if err != nil {
 		return TierFree, nil
 	}
-	mac := hmac.New(sha256.New, signingKey)
+	mac := hmac.New(sha256.New, getSigningKey())
 	mac.Write([]byte(signingInput))
 	if !hmac.Equal(sig, mac.Sum(nil)) {
 		return TierFree, nil // bad signature = free
@@ -158,7 +171,7 @@ func GenerateKey(email string, tier Tier, expiry time.Time) string {
 		Iat:  time.Now().Unix(),
 	}))
 	signingInput := header + "." + payload
-	mac := hmac.New(sha256.New, signingKey)
+	mac := hmac.New(sha256.New, getSigningKey())
 	mac.Write([]byte(signingInput))
 	sig := base64URLEncode(mac.Sum(nil))
 	return signingInput + "." + sig

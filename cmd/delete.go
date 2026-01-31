@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
-	wizctx "github.com/firewood-buck-3000/wiz/internal/context"
-	"github.com/firewood-buck-3000/wiz/internal/gitx"
+	wizctx "github.com/buck3000/wiz/internal/context"
+	"github.com/buck3000/wiz/internal/gitx"
 	"github.com/spf13/cobra"
 )
 

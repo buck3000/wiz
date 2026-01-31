@@ -3,7 +3,7 @@ package terminfo_test
 import (
 	"testing"
 
-	"github.com/firewood-buck-3000/wiz/internal/terminfo"
+	"github.com/buck3000/wiz/internal/terminfo"
 )
 
 func TestDetect(t *testing.T) {

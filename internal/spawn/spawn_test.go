@@ -3,7 +3,7 @@ package spawn_test
 import (
 	"testing"
 
-	"github.com/firewood-buck-3000/wiz/internal/spawn"
+	"github.com/buck3000/wiz/internal/spawn"
 )
 
 // mockTerminal records the OpenTab call for testing.

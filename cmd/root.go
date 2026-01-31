@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	wizctx "github.com/firewood-buck-3000/wiz/internal/context"
-	"github.com/firewood-buck-3000/wiz/internal/gitx"
-	"github.com/firewood-buck-3000/wiz/internal/tui"
+	wizctx "github.com/buck3000/wiz/internal/context"
+	"github.com/buck3000/wiz/internal/gitx"
+	"github.com/buck3000/wiz/internal/tui"
 	"github.com/spf13/cobra"
 )
 

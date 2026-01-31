@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/firewood-buck-3000/wiz/internal/gitx"
+	"github.com/buck3000/wiz/internal/gitx"
 	"github.com/spf13/cobra"
 )
 

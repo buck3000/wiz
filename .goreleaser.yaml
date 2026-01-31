@@ -12,7 +12,7 @@ builds:
       - CGO_ENABLED=0
     ldflags:
       - -s -w
-      - -X github.com/firewood-buck-3000/wiz/internal/license.SigningKeyHex={{ .Env.WIZ_SIGNING_KEY_HEX }}
+      - -X github.com/buck3000/wiz/internal/license.SigningKeyHex={{ .Env.WIZ_SIGNING_KEY_HEX }}
     goos:
       - linux
       - darwin
@@ -56,7 +56,7 @@ release:
 #   - repository:
 #       owner: firewood-buck-3000
 #       name: homebrew-tap
-#     homepage: https://github.com/firewood-buck-3000/wiz
+#     homepage: https://github.com/buck3000/wiz
 #     description: Magical git branch contexts for AI coding workflows
 #     license: MIT
 #     install: |

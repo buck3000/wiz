@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/firewood-buck-3000/wiz/internal/gitx"
+	"github.com/buck3000/wiz/internal/gitx"
 )
 
 // AgentConfig defines a custom agent command.

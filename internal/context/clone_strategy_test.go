@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	wizctx "github.com/firewood-buck-3000/wiz/internal/context"
-	"github.com/firewood-buck-3000/wiz/internal/gitx"
-	"github.com/firewood-buck-3000/wiz/testutil"
+	wizctx "github.com/buck3000/wiz/internal/context"
+	"github.com/buck3000/wiz/internal/gitx"
+	"github.com/buck3000/wiz/testutil"
 )
 
 func TestCloneProvisionerCreateAndDestroy(t *testing.T) {

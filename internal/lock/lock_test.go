@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/firewood-buck-3000/wiz/internal/lock"
+	"github.com/buck3000/wiz/internal/lock"
 )
 
 func TestWithLock(t *testing.T) {

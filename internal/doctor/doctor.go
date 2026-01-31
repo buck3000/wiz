@@ -5,7 +5,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/firewood-buck-3000/wiz/internal/terminfo"
+	"github.com/buck3000/wiz/internal/terminfo"
 )
 
 // Status represents the result of a diagnostic check.

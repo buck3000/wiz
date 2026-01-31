@@ -3,10 +3,10 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/firewood-buck-3000/wiz/internal/gitx"
-	"github.com/firewood-buck-3000/wiz/internal/license"
-	"github.com/firewood-buck-3000/wiz/internal/orchestra"
-	"github.com/firewood-buck-3000/wiz/internal/spawn"
+	"github.com/buck3000/wiz/internal/gitx"
+	"github.com/buck3000/wiz/internal/license"
+	"github.com/buck3000/wiz/internal/orchestra"
+	"github.com/buck3000/wiz/internal/spawn"
 	"github.com/spf13/cobra"
 )
 

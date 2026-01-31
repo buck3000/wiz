@@ -38,7 +38,7 @@ go run ./cmd/genkey/
 To generate keys signed with the production key, build genkey with the production key:
 
 ```bash
-go build -ldflags "-X github.com/firewood-buck-3000/wiz/internal/license.SigningKeyHex=YOUR_PROD_KEY_HEX" -o genkey-prod ./cmd/genkey/
+go build -ldflags "-X github.com/buck3000/wiz/internal/license.SigningKeyHex=YOUR_PROD_KEY_HEX" -o genkey-prod ./cmd/genkey/
 ./genkey-prod
 ```
 
@@ -128,7 +128,7 @@ goreleaser release --clean
 
 ### 4. Verify
 
-The release will appear at `https://github.com/firewood-buck-3000/wiz/releases` with:
+The release will appear at `https://github.com/buck3000/wiz/releases` with:
 - `wiz_VERSION_darwin_amd64.tar.gz`
 - `wiz_VERSION_darwin_arm64.tar.gz`
 - `wiz_VERSION_linux_amd64.tar.gz`
@@ -141,14 +141,14 @@ The release will appear at `https://github.com/firewood-buck-3000/wiz/releases` 
 ### From source (requires Go)
 
 ```bash
-go install github.com/firewood-buck-3000/wiz@latest
+go install github.com/buck3000/wiz@latest
 ```
 
 Note: `go install` does not inject the production signing key. Users installing from source get the dev key and cannot validate production license keys. This is fine — source users can modify the code anyway.
 
 ### From release binaries
 
-Download from the [releases page](https://github.com/firewood-buck-3000/wiz/releases) and add to PATH:
+Download from the [releases page](https://github.com/buck3000/wiz/releases) and add to PATH:
 
 ```bash
 tar xzf wiz_*_darwin_arm64.tar.gz

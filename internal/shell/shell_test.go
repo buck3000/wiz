@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/firewood-buck-3000/wiz/internal/shell"
+	"github.com/buck3000/wiz/internal/shell"
 )
 
 func TestInitScriptBash(t *testing.T) {

@@ -1,7 +1,7 @@
 package spawn
 
 import (
-	"github.com/firewood-buck-3000/wiz/internal/terminfo"
+	"github.com/buck3000/wiz/internal/terminfo"
 )
 
 // Terminal represents a detected terminal emulator that can open new tabs/windows.

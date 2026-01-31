@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/firewood-buck-3000/wiz/internal/gitx"
-	"github.com/firewood-buck-3000/wiz/testutil"
+	"github.com/buck3000/wiz/internal/gitx"
+	"github.com/buck3000/wiz/testutil"
 )
 
 func TestWorktreeAddAndList(t *testing.T) {

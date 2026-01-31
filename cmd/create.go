@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	wizctx "github.com/firewood-buck-3000/wiz/internal/context"
-	"github.com/firewood-buck-3000/wiz/internal/gitx"
-	"github.com/firewood-buck-3000/wiz/internal/license"
-	"github.com/firewood-buck-3000/wiz/internal/template"
+	wizctx "github.com/buck3000/wiz/internal/context"
+	"github.com/buck3000/wiz/internal/gitx"
+	"github.com/buck3000/wiz/internal/license"
+	"github.com/buck3000/wiz/internal/template"
 	"github.com/spf13/cobra"
 )
 

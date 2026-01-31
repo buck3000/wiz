@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/firewood-buck-3000/wiz/cmd"
+	"github.com/buck3000/wiz/cmd"
 )
 
 func main() {

@@ -16,7 +16,7 @@ import (
 // SigningKeyHex is the HMAC-SHA256 key used to verify license JWTs.
 // Set at build time via:
 //
-//	-ldflags "-X github.com/firewood-buck-3000/wiz/internal/license.SigningKeyHex=<hex>"
+//	-ldflags "-X github.com/buck3000/wiz/internal/license.SigningKeyHex=<hex>"
 //
 // Falls back to a dev-only default if unset.
 var SigningKeyHex = "77697a2d6465762d6b65792d6e6f742d666f722d70726f64" // "wiz-dev-key-not-for-prod" in hex

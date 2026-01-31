@@ -3,7 +3,7 @@ package context
 import (
 	gocontext "context"
 
-	"github.com/firewood-buck-3000/wiz/internal/gitx"
+	"github.com/buck3000/wiz/internal/gitx"
 )
 
 // CreateOpts holds options for provisioning a new context.

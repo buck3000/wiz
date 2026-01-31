@@ -14,13 +14,13 @@ wiz spawn bugfix-login    # opens another tab
 ## Install
 
 ```bash
-go install github.com/firewood-buck-3000/wiz@latest
+go install github.com/buck3000/wiz@latest
 ```
 
 Or build from source:
 
 ```bash
-git clone https://github.com/firewood-buck-3000/wiz.git
+git clone https://github.com/buck3000/wiz.git
 cd wiz
 go build -o wiz .
 ```

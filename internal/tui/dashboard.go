@@ -11,8 +11,8 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	wizctx "github.com/firewood-buck-3000/wiz/internal/context"
-	"github.com/firewood-buck-3000/wiz/internal/gitx"
+	wizctx "github.com/buck3000/wiz/internal/context"
+	"github.com/buck3000/wiz/internal/gitx"
 )
 
 // ContextStatus holds a context plus its live git status.

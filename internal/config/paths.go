@@ -4,7 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/firewood-buck-3000/wiz/internal/gitx"
+	"github.com/buck3000/wiz/internal/gitx"
 )
 
 // WizDir returns <git-common-dir>/wiz/ — the root of all wiz state for this repo.

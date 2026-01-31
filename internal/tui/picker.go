@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
-	wizctx "github.com/firewood-buck-3000/wiz/internal/context"
+	wizctx "github.com/buck3000/wiz/internal/context"
 )
 
 // Action is what the user chose to do in the picker.

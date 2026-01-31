@@ -7,8 +7,8 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/firewood-buck-3000/wiz/internal/config"
-	"github.com/firewood-buck-3000/wiz/internal/gitx"
+	"github.com/buck3000/wiz/internal/config"
+	"github.com/buck3000/wiz/internal/gitx"
 )
 
 type cloneProvisioner struct {

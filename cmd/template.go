@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/firewood-buck-3000/wiz/internal/gitx"
-	"github.com/firewood-buck-3000/wiz/internal/template"
+	"github.com/buck3000/wiz/internal/gitx"
+	"github.com/buck3000/wiz/internal/template"
 	"github.com/spf13/cobra"
 )
 

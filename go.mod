@@ -1,4 +1,4 @@
-module github.com/firewood-buck-3000/wiz
+module github.com/buck3000/wiz
 
 go 1.25.6
 

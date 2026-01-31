@@ -6,10 +6,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/firewood-buck-3000/wiz/internal/agent"
-	wizctx "github.com/firewood-buck-3000/wiz/internal/context"
-	"github.com/firewood-buck-3000/wiz/internal/gitx"
-	"github.com/firewood-buck-3000/wiz/internal/spawn"
+	"github.com/buck3000/wiz/internal/agent"
+	wizctx "github.com/buck3000/wiz/internal/context"
+	"github.com/buck3000/wiz/internal/gitx"
+	"github.com/buck3000/wiz/internal/spawn"
 )
 
 // Result captures the outcome of a single task execution.

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wiz — Magical git branch contexts for AI coding</title>
+  <meta name="description" content="Run multiple AI agents on separate branches in parallel. Zero confusion, zero conflicts.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="logo"><span>wiz</span></div>
+    <a href="https://github.com/buck3000/wiz" class="gh-link">GitHub</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <h1>Magical git branch contexts for AI coding workflows</h1>
+    <p>Run multiple terminal windows on separate branches at the same time. Each gets its own isolated worktree. Zero confusion, zero conflicts.</p>
+    <div class="hero-cta">
+      <a href="https://github.com/buck3000/wiz#installation" class="btn btn-primary">Install Free</a>
+      <a href="#pricing" class="btn btn-secondary">View Pricing</a>
+    </div>
+
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="terminal-dot"></div>
+        <div class="terminal-dot"></div>
+        <div class="terminal-dot"></div>
+      </div>
+      <pre><span class="cmd">$</span> wiz create auth-refactor
+<span class="comment"># Creates isolated worktree on branch auth-refactor</span>
+<span class="accent">ctx(auth-refactor)</span> ready at .git/wiz/ctx/auth-refactor
+
+<span class="cmd">$</span> wiz create fix-payment-bug
+<span class="accent">ctx(fix-payment-bug)</span> ready at .git/wiz/ctx/fix-payment-bug
+
+<span class="cmd">$</span> wiz spawn auth-refactor
+<span class="comment"># Opens a new terminal tab, already cd'd into the context</span>
+
+<span class="cmd">$</span> wiz ls
+  <span class="accent">auth-refactor</span>     main + 3 commits
+  <span class="accent">fix-payment-bug</span>   main + 1 commit</pre>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="container">
+    <h2>Built for AI-assisted development</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <h3>Isolated worktrees</h3>
+        <p>Each context is a real git worktree. No stashing, no switching. Work on 5 branches at once.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Agent-ready</h3>
+        <p>Spawn Claude, Gemini, or Codex inside any context. Each agent gets its own branch and directory.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Orchestra mode</h3>
+        <p>Define multi-context task graphs with dependencies. Run coordinated parallel work across branches.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Terminal integration</h3>
+        <p>Works with iTerm2, Kitty, WezTerm, tmux, and VS Code. Automatic prompt and tab title updates.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Templates</h3>
+        <p>Create reusable context templates for common workflows. Standardize how your team sets up branches.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Zero config</h3>
+        <p>Works with any git repo. No server, no daemon, no background process. Just a single binary.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pricing" id="pricing">
+  <div class="container">
+    <h2>Simple pricing</h2>
+    <p>Free for individuals. Pay for power features when you need them.</p>
+
+    <div class="pricing-grid">
+      <!-- Free -->
+      <div class="price-card">
+        <h3>Free</h3>
+        <div class="price">$0</div>
+        <div class="desc">For individual developers</div>
+        <ul>
+          <li><span class="icon-check">&#10003;</span> Up to 10 contexts</li>
+          <li><span class="icon-check">&#10003;</span> All core commands</li>
+          <li><span class="icon-check">&#10003;</span> Agent spawning</li>
+          <li><span class="icon-check">&#10003;</span> Shell integration</li>
+          <li><span class="icon-cross">&#8212;</span> Orchestra dependencies</li>
+          <li><span class="icon-cross">&#8212;</span> Cost tracking</li>
+          <li><span class="icon-cross">&#8212;</span> AI review</li>
+          <li><span class="icon-cross">&#8212;</span> Team features</li>
+        </ul>
+        <a href="https://github.com/buck3000/wiz#installation" class="btn btn-secondary">Get Started</a>
+      </div>
+
+      <!-- Pro -->
+      <div class="price-card featured">
+        <div class="badge">Most Popular</div>
+        <h3>Pro</h3>
+        <div class="price">$29 <span>/month</span></div>
+        <div class="desc">For power users</div>
+        <ul>
+          <li><span class="icon-check">&#10003;</span> Unlimited contexts</li>
+          <li><span class="icon-check">&#10003;</span> All core commands</li>
+          <li><span class="icon-check">&#10003;</span> Agent spawning</li>
+          <li><span class="icon-check">&#10003;</span> Shell integration</li>
+          <li><span class="icon-check">&#10003;</span> Orchestra dependencies</li>
+          <li><span class="icon-check">&#10003;</span> Cost tracking</li>
+          <li><span class="icon-cross">&#8212;</span> AI review</li>
+          <li><span class="icon-cross">&#8212;</span> Team features</li>
+        </ul>
+        <form action="/api/create-checkout-session" method="POST">
+          <input type="hidden" name="tier" value="pro">
+          <button type="submit" class="btn btn-primary">Subscribe</button>
+        </form>
+      </div>
+
+      <!-- Team -->
+      <div class="price-card">
+        <h3>Team</h3>
+        <div class="price">$99 <span>/seat/month</span></div>
+        <div class="desc">For engineering teams</div>
+        <ul>
+          <li><span class="icon-check">&#10003;</span> Unlimited contexts</li>
+          <li><span class="icon-check">&#10003;</span> All core commands</li>
+          <li><span class="icon-check">&#10003;</span> Agent spawning</li>
+          <li><span class="icon-check">&#10003;</span> Shell integration</li>
+          <li><span class="icon-check">&#10003;</span> Orchestra dependencies</li>
+          <li><span class="icon-check">&#10003;</span> Cost tracking</li>
+          <li><span class="icon-check">&#10003;</span> AI review (LLM-as-judge)</li>
+          <li><span class="icon-check">&#10003;</span> Shared registry, CI, audit</li>
+        </ul>
+        <form action="/api/create-checkout-session" method="POST">
+          <input type="hidden" name="tier" value="team">
+          <button type="submit" class="btn btn-primary">Subscribe</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    &copy; 2026 Firewood Ventures LLC. All rights reserved.
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wiz — Subscription Confirmed</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .success {
+      text-align: center;
+      padding: 6rem 0 4rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .success h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--heading);
+      margin-bottom: 1rem;
+    }
+    .success .subtitle {
+      font-size: 1.0625rem;
+      color: var(--text-muted);
+      margin-bottom: 2.5rem;
+    }
+    .install-steps {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 2rem;
+      text-align: left;
+    }
+    .install-steps h2 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--heading);
+      margin-bottom: 1.25rem;
+    }
+    .install-steps .step {
+      margin-bottom: 1.5rem;
+    }
+    .install-steps .step:last-child {
+      margin-bottom: 0;
+    }
+    .install-steps .step h3 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--heading);
+      margin-bottom: 0.375rem;
+    }
+    .install-steps .step p {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+    .install-steps pre {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 0.8125rem;
+      overflow-x: auto;
+      color: var(--text);
+    }
+    .back-link {
+      display: inline-block;
+      margin-top: 2rem;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <a href="/" class="logo"><span>wiz</span></a>
+    <a href="https://github.com/buck3000/wiz" class="gh-link">GitHub</a>
+  </div>
+</nav>
+
+<section class="success">
+  <div class="container">
+    <h1>You're all set.</h1>
+    <p class="subtitle">Your license key will arrive in the Stripe receipt email sent to your inbox. Use it to unlock your Wiz features.</p>
+
+    <div class="install-steps">
+      <h2>Activate your license</h2>
+
+      <div class="step">
+        <h3>Option 1: Environment variable</h3>
+        <p>Add this to your shell profile (.zshrc, .bashrc, etc.):</p>
+        <pre>export WIZ_LICENSE_KEY="ey...your-key-here"</pre>
+      </div>
+
+      <div class="step">
+        <h3>Option 2: License file</h3>
+        <p>Save your key to a config file:</p>
+        <pre>mkdir -p ~/.config/wiz
+echo '{"key":"ey...your-key-here"}' > ~/.config/wiz/license.json</pre>
+      </div>
+
+      <div class="step">
+        <h3>Verify</h3>
+        <p>Check that your tier is active:</p>
+        <pre>wiz status</pre>
+      </div>
+    </div>
+
+    <a href="/" class="back-link">&larr; Back to homepage</a>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    &copy; 2026 Firewood Ventures LLC. All rights reserved.
+  </div>
+</footer>
+
+</body>
+</html>

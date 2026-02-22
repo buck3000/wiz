@@ -66,7 +66,7 @@ var createCmd = &cobra.Command{
 		}
 		if err := license.CheckContextLimit(tier, len(existing)); err != nil {
 			limErr := err.(*license.ContextLimitErr)
-			return fmt.Errorf("%s\n\n  Upgrade to Wiz Pro for unlimited contexts:\n    https://wiz.dev/pro\n\n  Or free up a slot:\n    wiz delete <name>\n    wiz gc --merged\n\n  Current contexts: %d/%d",
+			return fmt.Errorf("%s\n\n  Unlock unlimited contexts with a Wiz Pro license:\n    https://github.com/sponsors/buck3000\n\n  Or free up a slot:\n    wiz delete <name>\n    wiz gc --merged\n\n  Current contexts: %d/%d",
 				limErr, limErr.Current, limErr.Max)
 		}
 

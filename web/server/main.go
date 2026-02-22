@@ -40,10 +40,9 @@ func main() {
 
 // config holds all required environment configuration.
 type config struct {
-	StripeSecretKey    string
+	StripeSecretKey     string
 	StripeWebhookSecret string
-	StripePriceProID   string
-	StripePriceTeamID  string
+	StripePriceProID    string // One-time payment price for Pro tier
 }
 
 func loadConfig() config {
@@ -56,9 +55,8 @@ func loadConfig() config {
 	}
 
 	return config{
-		StripeSecretKey:    mustEnv("STRIPE_SECRET_KEY"),
+		StripeSecretKey:     mustEnv("STRIPE_SECRET_KEY"),
 		StripeWebhookSecret: mustEnv("STRIPE_WEBHOOK_SECRET"),
-		StripePriceProID:   mustEnv("STRIPE_PRO_PRICE_ID"),
-		StripePriceTeamID:  mustEnv("STRIPE_TEAM_PRICE_ID"),
+		StripePriceProID:    mustEnv("STRIPE_PRO_PRICE_ID"),
 	}
 }

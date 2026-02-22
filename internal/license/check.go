@@ -139,12 +139,8 @@ func validateKey(token string) (Tier, error) {
 
 func parseTier(s string) Tier {
 	switch strings.ToLower(s) {
-	case "pro":
+	case "pro", "personal":
 		return TierPro
-	case "team":
-		return TierTeam
-	case "enterprise":
-		return TierEnterprise
 	default:
 		return TierFree
 	}

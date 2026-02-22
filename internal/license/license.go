@@ -6,10 +6,8 @@ import "fmt"
 type Tier int
 
 const (
-	TierFree       Tier = iota
-	TierPro             // $29/mo — power users
-	TierTeam            // $99/mo per seat — teams
-	TierEnterprise      // custom pricing
+	TierFree Tier = iota
+	TierPro       // one-time payment — unlimited contexts
 )
 
 func (t Tier) String() string {
@@ -18,59 +16,23 @@ func (t Tier) String() string {
 		return "Free"
 	case TierPro:
 		return "Pro"
-	case TierTeam:
-		return "Team"
-	case TierEnterprise:
-		return "Enterprise"
 	default:
 		return fmt.Sprintf("Tier(%d)", int(t))
 	}
 }
 
-// Limits defines feature gates for a tier.
+// Limits defines context limits for a tier.
 type Limits struct {
-	MaxContexts   int  // 0 = unlimited
-	OrchestraDeps bool // depends_on in orchestra files
-	CostTracking  bool
-	AIReview      bool // wiz review (LLM-as-judge)
-	TeamRegistry  bool // shared context registry
-	CIMode        bool // wiz orchestra --ci --headless
-	AuditLog      bool
+	MaxContexts int // 0 = unlimited
 }
 
-// LimitsForTier returns the feature limits for the given tier.
+// LimitsForTier returns the limits for the given tier.
 func LimitsForTier(t Tier) Limits {
 	switch t {
 	case TierPro:
-		return Limits{
-			MaxContexts:   0, // unlimited
-			OrchestraDeps: true,
-			CostTracking:  true,
-		}
-	case TierTeam:
-		return Limits{
-			MaxContexts:   0,
-			OrchestraDeps: true,
-			CostTracking:  true,
-			AIReview:      true,
-			TeamRegistry:  true,
-			CIMode:        true,
-			AuditLog:      true,
-		}
-	case TierEnterprise:
-		return Limits{
-			MaxContexts:   0,
-			OrchestraDeps: true,
-			CostTracking:  true,
-			AIReview:      true,
-			TeamRegistry:  true,
-			CIMode:        true,
-			AuditLog:      true,
-		}
+		return Limits{MaxContexts: 0} // unlimited
 	default: // Free
-		return Limits{
-			MaxContexts: 10,
-		}
+		return Limits{MaxContexts: 10}
 	}
 }
 

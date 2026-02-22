@@ -46,12 +46,10 @@ Edit `cmd/genkey/main.go` to change the email, tier, or expiry.
 
 ## License Tiers
 
-| Tier | Max Contexts | Orchestra Deps | Cost Tracking | AI Review | Team Features |
-|------|-------------|----------------|---------------|-----------|---------------|
-| Free | 10 | No | No | No | No |
-| Pro | Unlimited | Yes | Yes | No | No |
-| Team | Unlimited | Yes | Yes | Yes | Yes |
-| Enterprise | Unlimited | Yes | Yes | Yes | Yes |
+| Tier | Price | Max Contexts |
+|------|-------|-------------|
+| Free | $0 | 10 |
+| Pro | One-time payment | Unlimited |
 
 ## User License Installation
 

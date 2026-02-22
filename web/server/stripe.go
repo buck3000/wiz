@@ -16,36 +16,22 @@ import (
 
 // tierForPriceID maps a Stripe price ID to a wiz license tier.
 func tierForPriceID(cfg config, priceID string) (license.Tier, bool) {
-	switch priceID {
-	case cfg.StripePriceProID:
+	if priceID == cfg.StripePriceProID {
 		return license.TierPro, true
-	case cfg.StripePriceTeamID:
-		return license.TierTeam, true
-	default:
-		return license.TierFree, false
 	}
+	return license.TierFree, false
 }
 
 // handleCreateCheckoutSession creates a Stripe Checkout session and redirects
-// the user to it. Expects a form POST with a "tier" field ("pro" or "team").
+// the user to it. Expects a form POST with a "tier" field ("personal" or "team").
 func handleCreateCheckoutSession(cfg config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		stripe.Key = cfg.StripeSecretKey
 
-		tier := r.FormValue("tier")
-		var priceID string
-		switch tier {
-		case "pro":
-			priceID = cfg.StripePriceProID
-		case "team":
-			priceID = cfg.StripePriceTeamID
-		default:
-			http.Error(w, "invalid tier", http.StatusBadRequest)
-			return
-		}
+		priceID := cfg.StripePriceProID
 
 		params := &stripe.CheckoutSessionParams{
-			Mode: stripe.String(string(stripe.CheckoutSessionModeSubscription)),
+			Mode: stripe.String(string(stripe.CheckoutSessionModePayment)),
 			LineItems: []*stripe.CheckoutSessionLineItemParams{
 				{
 					Price:    stripe.String(priceID),
@@ -87,10 +73,6 @@ func handleWebhook(cfg config) http.HandlerFunc {
 		switch event.Type {
 		case "checkout.session.completed":
 			handleCheckoutCompleted(cfg, event)
-		case "invoice.paid":
-			handleInvoicePaid(cfg, event)
-		case "customer.subscription.deleted":
-			handleSubscriptionDeleted(event)
 		default:
 			log.Printf("unhandled event type: %s", event.Type)
 		}
@@ -116,11 +98,11 @@ func handleCheckoutCompleted(cfg config, event stripe.Event) {
 
 	// Determine the tier from the line items. The checkout session object in
 	// the webhook payload doesn't always include line items expanded, so we
-	// look up the subscription's price via the session metadata or price ID.
+	// look up the price via the session metadata or price ID.
 	tier := resolveTierFromSession(cfg, &sess)
 
-	// Generate a license key valid for 1 year (renewed on invoice.paid).
-	key := license.GenerateKey(email, tier, time.Now().AddDate(1, 0, 0))
+	// Generate a permanent license key (one-time purchase, no renewal needed).
+	key := license.GenerateKey(email, tier, time.Now().AddDate(100, 0, 0))
 	log.Printf("generated %s license for %s (checkout %s)", tier, email, sess.ID)
 
 	// Store the license key on the Stripe customer for retrieval and email delivery.
@@ -129,59 +111,6 @@ func handleCheckoutCompleted(cfg config, event stripe.Event) {
 			log.Printf("error storing license on customer %s: %v", sess.Customer.ID, err)
 		}
 	}
-}
-
-// handleInvoicePaid generates a fresh license key on subscription renewal.
-func handleInvoicePaid(cfg config, event stripe.Event) {
-	var inv struct {
-		CustomerEmail string `json:"customer_email"`
-		CustomerID    string `json:"customer"`
-		Lines         struct {
-			Data []struct {
-				Price struct {
-					ID string `json:"id"`
-				} `json:"price"`
-			} `json:"data"`
-		} `json:"lines"`
-	}
-	if err := json.Unmarshal(event.Data.Raw, &inv); err != nil {
-		log.Printf("error parsing invoice: %v", err)
-		return
-	}
-
-	if inv.CustomerEmail == "" || len(inv.Lines.Data) == 0 {
-		return
-	}
-
-	priceID := inv.Lines.Data[0].Price.ID
-	tier, ok := tierForPriceID(cfg, priceID)
-	if !ok {
-		log.Printf("invoice for unknown price %s, skipping", priceID)
-		return
-	}
-
-	key := license.GenerateKey(inv.CustomerEmail, tier, time.Now().AddDate(1, 0, 0))
-	log.Printf("renewed %s license for %s", tier, inv.CustomerEmail)
-
-	if inv.CustomerID != "" {
-		if err := storeLicenseOnCustomer(inv.CustomerID, key, tier.String()); err != nil {
-			log.Printf("error updating license on customer %s: %v", inv.CustomerID, err)
-		}
-	}
-}
-
-// handleSubscriptionDeleted logs cancellation. The license key has a built-in
-// expiry so it will naturally stop working.
-func handleSubscriptionDeleted(event stripe.Event) {
-	var sub struct {
-		ID       string `json:"id"`
-		Customer string `json:"customer"`
-	}
-	if err := json.Unmarshal(event.Data.Raw, &sub); err != nil {
-		log.Printf("error parsing subscription deletion: %v", err)
-		return
-	}
-	log.Printf("subscription %s cancelled for customer %s", sub.ID, sub.Customer)
 }
 
 // resolveTierFromSession determines the license tier from a checkout session.

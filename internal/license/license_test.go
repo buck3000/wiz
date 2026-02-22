@@ -14,8 +14,6 @@ func TestTierString(t *testing.T) {
 	}{
 		{TierFree, "Free"},
 		{TierPro, "Pro"},
-		{TierTeam, "Team"},
-		{TierEnterprise, "Enterprise"},
 	}
 	for _, tt := range tests {
 		if got := tt.tier.String(); got != tt.want {
@@ -29,31 +27,17 @@ func TestLimitsForTier(t *testing.T) {
 	if free.MaxContexts != 10 {
 		t.Errorf("Free MaxContexts = %d, want 10", free.MaxContexts)
 	}
-	if free.OrchestraDeps {
-		t.Error("Free should not have OrchestraDeps")
-	}
 
 	pro := LimitsForTier(TierPro)
 	if pro.MaxContexts != 0 {
 		t.Errorf("Pro MaxContexts = %d, want 0 (unlimited)", pro.MaxContexts)
 	}
-	if !pro.OrchestraDeps {
-		t.Error("Pro should have OrchestraDeps")
-	}
-	if !pro.CostTracking {
-		t.Error("Pro should have CostTracking")
-	}
-
-	team := LimitsForTier(TierTeam)
-	if !team.AIReview || !team.TeamRegistry || !team.CIMode || !team.AuditLog {
-		t.Error("Team should have all team features")
-	}
 }
 
 func TestCheckContextLimit(t *testing.T) {
 	// Free tier, under limit.
-	if err := CheckContextLimit(TierFree, 5); err != nil {
-		t.Errorf("unexpected error at 5/10: %v", err)
+	if err := CheckContextLimit(TierFree, 9); err != nil {
+		t.Errorf("unexpected error at 9/10: %v", err)
 	}
 
 	// Free tier, at limit.
@@ -119,15 +103,15 @@ func TestCheckLicenseEnvVar(t *testing.T) {
 	ResetCache()
 	defer ResetCache()
 
-	key := GenerateKey("env@example.com", TierTeam, time.Now().Add(24*time.Hour))
+	key := GenerateKey("env@example.com", TierPro, time.Now().Add(24*time.Hour))
 	t.Setenv("WIZ_LICENSE_KEY", key)
 
 	tier, err := CheckLicense()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if tier != TierTeam {
-		t.Errorf("got tier %v, want Team", tier)
+	if tier != TierPro {
+		t.Errorf("got tier %v, want Pro", tier)
 	}
 }
 
@@ -176,5 +160,17 @@ func TestCheckLicenseNoKey(t *testing.T) {
 	}
 	if tier != TierFree {
 		t.Errorf("got tier %v, want Free", tier)
+	}
+}
+
+func TestParseTierAcceptsBothProAndPersonal(t *testing.T) {
+	if got := parseTier("pro"); got != TierPro {
+		t.Errorf("parseTier(\"pro\") = %v, want TierPro", got)
+	}
+	if got := parseTier("personal"); got != TierPro {
+		t.Errorf("parseTier(\"personal\") = %v, want TierPro", got)
+	}
+	if got := parseTier("Personal"); got != TierPro {
+		t.Errorf("parseTier(\"Personal\") = %v, want TierPro", got)
 	}
 }

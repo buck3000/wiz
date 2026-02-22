@@ -11,7 +11,15 @@ wiz spawn bugfix-login    # opens another tab
 # Run Claude Code in parallel on different branches
 ```
 
+## Why
+
+If you use Claude Code, Codex, or any AI coding agent, you've probably wanted to run multiple sessions on different branches at the same time. Without wiz, that means manually cloning repos, juggling directories, and losing track of which terminal is on which branch.
+
+Wiz wraps **git worktrees** so each branch gets its own isolated working directory — instantly, with zero disk overhead. You create a context, spawn a terminal tab, and you're working. Your prompt tells you where you are. When you're done, `wiz finish` pushes, creates a PR, and cleans up.
+
 ## Install
+
+**Requires Go 1.25+**
 
 ```bash
 go install github.com/buck3000/wiz@latest
@@ -23,11 +31,18 @@ Or build from source:
 git clone https://github.com/buck3000/wiz.git
 cd wiz
 go build -o wiz .
+sudo mv wiz /usr/local/bin/   # or anywhere on your PATH
+```
+
+Verify it works:
+
+```bash
+wiz doctor
 ```
 
 ## Shell Setup
 
-Add to your shell rc file:
+Add to your shell rc file so `wiz enter` works and you get prompt/title enhancements:
 
 **zsh** (`~/.zshrc`):
 ```zsh
@@ -44,52 +59,127 @@ eval "$(wiz init bash)"
 wiz init fish | source
 ```
 
+Restart your shell (or `source` the file), then run `wiz doctor` to confirm everything is wired up.
+
 This gives you:
 - A `wiz` shell function that handles `wiz enter` properly
 - Automatic prompt prefix: `🧙 feat-auth*` (with dirty indicator)
 - Terminal title: `🧙 feat-auth — myapp`
 - iTerm2 badge support (automatic when detected)
 
-## Workflows
+## Quick Start
 
-### Basic: Create and enter a context
+Everything below assumes you're inside a git repo with at least one commit.
+
+### 1. Create a context
 
 ```bash
 wiz create feat-auth
+# Creates an isolated worktree on a new branch "feat-auth"
+```
+
+Options:
+- `--base main` — branch off a specific base branch
+- `--task "Add OAuth login"` — attach a task description (used by agents and `wiz finish`)
+- `--agent claude` — associate an agent for `wiz spawn`
+
+### 2. Work in it
+
+**Option A — Enter in your current terminal:**
+```bash
 wiz enter feat-auth
-# You're now in an isolated working directory on the feat-auth branch
+# cd's into the worktree and sets up the environment
 ```
 
-### Concurrent Claude Code sessions
-
+**Option B — Open a new terminal tab:**
 ```bash
-wiz create feat-auth
-wiz create bugfix-login --base main
-wiz spawn feat-auth       # New terminal tab → cd into feat-auth context
-wiz spawn bugfix-login    # Another tab → cd into bugfix-login context
-# Run `claude` in each tab independently
+wiz spawn feat-auth
+# Opens a new iTerm2/Kitty/WezTerm/tmux tab, cd'd into the context
 ```
 
-### Quick status across all contexts
-
+**Option C — Launch an AI agent directly:**
 ```bash
-wiz status          # Show current context status
-wiz list            # List all contexts
-wiz list --json     # Machine-readable output
+wiz spawn feat-auth --agent claude --prompt "Add OAuth login with Google"
+# Opens a new tab and starts Claude Code with the prompt
 ```
 
-### Run a command in a context without entering it
+### 3. Run multiple contexts in parallel
 
 ```bash
-wiz run feat-auth -- git log --oneline -5
+wiz create feat-auth --task "Add OAuth login"
+wiz create fix-payments --task "Fix Stripe webhook retry logic"
+wiz create refactor-db --task "Migrate to sqlc"
+
+wiz spawn feat-auth --agent claude
+wiz spawn fix-payments --agent claude
+wiz spawn refactor-db --agent claude
+# Three terminal tabs, three branches, three Claude sessions
+```
+
+### 4. Check on progress
+
+```bash
+wiz list                       # List all contexts
+wiz status                     # Current context status
+wiz diff feat-auth --stat      # What changed vs base branch
+wiz diff --all                 # Diff summary for every context
+wiz log feat-auth              # Git log for a context
+```
+
+### 5. Run commands without entering
+
+```bash
 wiz run feat-auth -- make test
+wiz run feat-auth -- git log --oneline -5
 ```
 
-### Clean up
+### 6. Finish up
 
 ```bash
-wiz delete feat-auth
-wiz delete bugfix-login --force  # Skip dirty check
+wiz finish feat-auth
+# Pushes the branch, creates a PR (via gh), and deletes the context
+
+wiz finish feat-auth --merge
+# Same, but also merges the PR
+```
+
+Options:
+- `--title "Add OAuth"` — custom PR title (default: context name)
+- `--body "..."` — custom PR body (default: task description)
+
+Requires [GitHub CLI](https://cli.github.com/) (`gh`) to be installed and authenticated.
+
+## Orchestra
+
+Define a multi-task plan in YAML and run them all at once:
+
+```yaml
+# plan.yaml
+tasks:
+  - name: auth
+    prompt: "Add OAuth login with Google"
+    agent: claude
+  - name: tests
+    prompt: "Write integration tests for the auth module"
+    agent: claude
+    depends_on: [auth]
+```
+
+```bash
+wiz orchestra plan.yaml
+# Creates contexts, spawns agents, respects dependency order
+```
+
+Tasks with `depends_on` wait for their dependencies to be spawned first.
+
+## Templates
+
+Save and reuse context configurations:
+
+```bash
+wiz template save my-template --base main --strategy worktree --agent claude
+wiz template list
+wiz create feat-x --template my-template
 ```
 
 ## Commands
@@ -97,15 +187,20 @@ wiz delete bugfix-login --force  # Skip dirty check
 | Command | Description |
 |---------|-------------|
 | `wiz` | Launch interactive TUI picker |
-| `wiz create <name> [--base <branch>] [--strategy auto\|worktree\|clone]` | Create a new context |
+| `wiz create <name>` | Create a new context |
 | `wiz list [--json]` | List all contexts |
 | `wiz enter <name>` | Activate context in current shell |
-| `wiz spawn <name>` | Open new terminal tab in context |
+| `wiz spawn <name> [--agent <name>] [--prompt <text>]` | Open new terminal tab in context |
 | `wiz run <name> -- <cmd...>` | Run command inside context |
+| `wiz diff <name> [--stat] [--all]` | Show diff vs base branch |
+| `wiz log <name> [-n N] [--all]` | Show git log for a context |
+| `wiz finish <name> [--merge]` | Push, create PR, clean up |
+| `wiz orchestra <file.yaml>` | Run multi-task plan |
 | `wiz path <name>` | Print context filesystem path |
 | `wiz rename <old> <new>` | Rename a context |
 | `wiz delete <name> [--force]` | Delete a context |
-| `wiz status [--porcelain]` | Show current context status |
+| `wiz status [--porcelain] [--json]` | Show current context status |
+| `wiz template save\|list\|delete` | Manage context templates |
 | `wiz init <bash\|zsh\|fish>` | Print shell integration script |
 | `wiz doctor` | Check environment and show active enhancements |
 
@@ -156,8 +251,18 @@ When inside a context, these are exported:
 | `WIZ_BRANCH` | Git branch name |
 | `WIZ_PROMPT` | Formatted prompt string (set by hook) |
 
+## Support
+
+Wiz is free to use with up to 10 concurrent contexts. If you find it useful, consider sponsoring the project to unlock unlimited contexts and support development:
+
+[Sponsor on GitHub](https://github.com/sponsors/buck3000)
+
 ## Testing
 
 ```bash
 go test ./... -race
 ```
+
+## License
+
+MIT

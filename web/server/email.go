@@ -21,7 +21,7 @@ func storeLicenseOnCustomer(customerID, licenseKey, tier string) error {
 				"wiz_license_tier": tier,
 			},
 		},
-		Description: stripe.String(fmt.Sprintf("Wiz %s subscriber", tier)),
+		Description: stripe.String(fmt.Sprintf("Wiz %s customer", tier)),
 	}
 
 	_, err := customer.Update(customerID, params)

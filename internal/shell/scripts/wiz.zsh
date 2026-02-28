@@ -3,9 +3,9 @@
 # Add to .zshrc: eval "$(wiz init zsh)"
 
 wiz() {
-  if [[ "$1" == "enter" ]]; then
+  if [[ "$1" == "enter" || "$1" == "checkout" ]]; then
     local output
-    output="$(command wiz enter "${@:2}")" || return $?
+    output="$(command wiz "$@")" || return $?
     eval "$output"
   else
     command wiz "$@"

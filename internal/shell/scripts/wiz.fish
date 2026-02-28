@@ -2,8 +2,8 @@
 # Add to config.fish: wiz init fish | source
 
 function wiz
-    if test "$argv[1]" = "enter"
-        set -l output (command wiz enter $argv[2..])
+    if test "$argv[1]" = "enter" -o "$argv[1]" = "checkout"
+        set -l output (command wiz $argv)
         or return $status
         eval $output
     else

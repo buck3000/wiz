@@ -67,11 +67,57 @@ This gives you:
 - Terminal title: `🧙 feat-auth — myapp`
 - iTerm2 badge support (automatic when detected)
 
+## Git-style Flow
+
+Wiz supports a git-like porcelain so the common path feels natural:
+
+```bash
+wiz checkout feat-x        # create context + enter (or just enter if it exists)
+# edit files...
+wiz add -A                 # stage changes (runs in context dir)
+wiz commit -m "Add feature X"
+wiz finish                 # push, create PR, clean up
+```
+
+`wiz checkout -` returns to the previous context (like `git checkout -`).
+
+## Anything Git Can Do
+
+Wiz never reduces what git can do. The `wiz git` escape hatch runs any git command inside the active context:
+
+```bash
+wiz git status
+wiz git diff
+wiz git log --oneline --decorate -20
+wiz git rebase -i origin/main
+wiz git cherry-pick abc123
+wiz git reset --hard HEAD~1
+wiz git stash push -m "wip"
+wiz git bisect start
+wiz git clean -fdx
+```
+
+Use `--ctx <name>` to target a specific context, or `--base-ok` to run in the base repo:
+
+```bash
+wiz git --ctx feat-auth log --oneline -5
+wiz git --base-ok status   # run in base worktree
+```
+
+Alternatively, `wiz run <name> -- git ...` works the same way.
+
 ## Quick Start
 
 Everything below assumes you're inside a git repo with at least one commit.
 
 ### 1. Create a context
+
+```bash
+wiz checkout feat-auth
+# Creates an isolated worktree on a new branch "feat-auth" and enters it
+```
+
+Or use the explicit create command for more options:
 
 ```bash
 wiz create feat-auth
@@ -85,19 +131,25 @@ Options:
 
 ### 2. Work in it
 
-**Option A — Enter in your current terminal:**
+**Option A — Checkout (create + enter):**
+```bash
+wiz checkout feat-auth
+# Creates if needed, then cd's into the worktree
+```
+
+**Option B — Enter an existing context:**
 ```bash
 wiz enter feat-auth
 # cd's into the worktree and sets up the environment
 ```
 
-**Option B — Open a new terminal tab:**
+**Option C — Open a new terminal tab:**
 ```bash
 wiz spawn feat-auth
 # Opens a new iTerm2/Kitty/WezTerm/tmux tab, cd'd into the context
 ```
 
-**Option C — Launch an AI agent directly:**
+**Option D — Launch an AI agent directly:**
 ```bash
 wiz spawn feat-auth --agent claude --prompt "Add OAuth login with Google"
 # Opens a new tab and starts Claude Code with the prompt
@@ -124,6 +176,7 @@ wiz status                     # Current context status
 wiz diff feat-auth --stat      # What changed vs base branch
 wiz diff --all                 # Diff summary for every context
 wiz log feat-auth              # Git log for a context
+wiz git log --oneline -10      # Any git command in active context
 ```
 
 ### 5. Run commands without entering
@@ -136,10 +189,10 @@ wiz run feat-auth -- git log --oneline -5
 ### 6. Finish up
 
 ```bash
-wiz finish feat-auth
-# Pushes the branch, creates a PR (via gh), and deletes the context
+wiz finish                 # Finish current context (resolved from env/CWD)
+wiz finish feat-auth       # Finish by name
 
-wiz finish feat-auth --merge
+wiz finish --merge
 # Same, but also merges the PR
 ```
 
@@ -187,14 +240,19 @@ wiz create feat-x --template my-template
 | Command | Description |
 |---------|-------------|
 | `wiz` | Launch interactive TUI picker |
+| `wiz checkout <name>` | Switch to context (create if needed) |
+| `wiz checkout -` | Return to previous context |
 | `wiz create <name>` | Create a new context |
 | `wiz list [--json]` | List all contexts |
 | `wiz enter <name>` | Activate context in current shell |
 | `wiz spawn <name> [--agent <name>] [--prompt <text>]` | Open new terminal tab in context |
+| `wiz add <args...>` | Stage files in active context (`git add`) |
+| `wiz commit <args...>` | Commit in active context (`git commit`) |
+| `wiz git <args...>` | Run any git command in active context |
 | `wiz run <name> -- <cmd...>` | Run command inside context |
 | `wiz diff <name> [--stat] [--all]` | Show diff vs base branch |
 | `wiz log <name> [-n N] [--all]` | Show git log for a context |
-| `wiz finish <name> [--merge]` | Push, create PR, clean up |
+| `wiz finish [<name>] [--merge]` | Push, create PR, clean up |
 | `wiz orchestra <file.yaml>` | Run multi-task plan |
 | `wiz path <name>` | Print context filesystem path |
 | `wiz rename <old> <new>` | Rename a context |

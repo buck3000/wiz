@@ -1,21 +1,23 @@
 # wiz
 
-Magical git branch contexts. Work on multiple branches simultaneously across terminal windows with zero confusion.
+Orchestrate AI coding agents across parallel branches. You're the conductor — wiz is the baton.
 
-```
-wiz create feat-auth
-wiz create bugfix-login
-wiz spawn feat-auth       # opens new terminal tab
-wiz spawn bugfix-login    # opens another tab
-# Each tab shows: 🧙 feat-auth — myapp
-# Run Claude Code in parallel on different branches
+```bash
+wiz create feat-auth   --task "Add OAuth login"       --agent claude
+wiz create fix-payments --task "Fix Stripe webhooks"   --agent claude
+wiz create refactor-db  --task "Migrate to sqlc"       --agent claude
+
+wiz spawn feat-auth
+wiz spawn fix-payments
+wiz spawn refactor-db
+# Three terminal tabs. Three branches. Three Claude sessions. Zero confusion.
 ```
 
 ## Why
 
-If you use Claude Code, Codex, or any AI coding agent, you've probably wanted to run multiple sessions on different branches at the same time. Without wiz, that means manually cloning repos, juggling directories, and losing track of which terminal is on which branch.
+You want to run 3 Claude Code sessions on 3 different features. That means 3 branches, 3 directories, 3 terminals, and remembering which is which. Without wiz, you're manually cloning repos, juggling paths, and losing track of what's where.
 
-Wiz wraps **git worktrees** so each branch gets its own isolated working directory — instantly, with zero disk overhead. You create a context, spawn a terminal tab, and you're working. Your prompt tells you where you are. When you're done, `wiz finish` pushes, creates a PR, and cleans up.
+Wiz wraps **git worktrees** so each branch gets its own isolated working directory — instantly, with zero disk overhead. You create a context, spawn a terminal tab, and an agent is working. Your prompt tells you where you are. When agents finish, `wiz finish` pushes, creates a PR, and cleans up.
 
 ## Install
 
@@ -66,6 +68,112 @@ This gives you:
 - Automatic prompt prefix: `🧙 feat-auth*` (with dirty indicator)
 - Terminal title: `🧙 feat-auth — myapp`
 - iTerm2 badge support (automatic when detected)
+
+## AI Agent Workflows
+
+### Single agent
+
+Create a context, spawn an agent, come back later:
+
+```bash
+wiz create feat-auth --task "Add OAuth login with Google" --agent claude
+wiz spawn feat-auth
+# Claude Code opens in a new tab, working on the task
+# You go do something else
+wiz diff feat-auth --stat   # check progress whenever you want
+```
+
+### Multiple agents in parallel
+
+The core workflow — run several agents at once, each on its own branch:
+
+```bash
+# Set up three contexts
+wiz create feat-auth    --task "Add OAuth login"            --agent claude
+wiz create fix-payments --task "Fix Stripe webhook retries" --agent claude
+wiz create refactor-db  --task "Migrate queries to sqlc"    --agent claude
+
+# Launch all three
+wiz spawn feat-auth
+wiz spawn fix-payments
+wiz spawn refactor-db
+
+# Monitor from your main terminal
+wiz watch                  # live dashboard, refreshes every 2s
+wiz diff --all             # what changed across all contexts
+wiz log --all              # recent commits in every context
+wiz list --tasks           # what each agent is working on
+```
+
+### Orchestrated plan with dependencies
+
+For workflows where tasks depend on each other, define a YAML plan:
+
+```yaml
+# plan.yaml
+tasks:
+  - name: auth-backend
+    agent: claude
+    prompt: "Implement OAuth2 backend with Google provider"
+
+  - name: auth-frontend
+    agent: claude
+    prompt: "Build login page with Google OAuth button"
+
+  - name: auth-tests
+    agent: claude
+    prompt: "Write integration tests for the OAuth flow"
+    depends_on: [auth-backend, auth-frontend]
+```
+
+```bash
+wiz orchestra plan.yaml
+# Creates contexts, spawns agents, respects dependency order
+```
+
+## Monitoring Your Agents
+
+Once agents are running, you have full visibility from your main terminal:
+
+```bash
+wiz watch                      # Live dashboard (auto-refreshes)
+wiz list --tasks               # All contexts with task descriptions
+wiz diff --all                 # Diff summary for every context
+wiz diff feat-auth --stat      # What changed in one context
+wiz log --all                  # Recent commits across all contexts
+wiz log feat-auth              # Git log for a specific context
+wiz status                     # Current context status
+```
+
+Enter any context to inspect agent work directly:
+
+```bash
+wiz enter feat-auth            # cd into the worktree
+# look around, run tests, read the code
+exit                           # back to where you were
+```
+
+## Reviewing and Shipping
+
+When agents finish, review their work and ship the good stuff:
+
+```bash
+# Review what each agent did
+wiz diff --all --stat          # Quick summary
+wiz diff feat-auth             # Full diff for one context
+
+# Ship it
+wiz finish feat-auth           # Push, create PR, clean up
+
+# Or ship with options
+wiz finish feat-auth --title "Add OAuth" --body "Closes #42"
+wiz finish feat-auth --merge   # Create PR and merge immediately
+
+# Discard bad work
+wiz delete fix-payments        # Just remove (no PR)
+```
+
+Requires [GitHub CLI](https://cli.github.com/) (`gh`) to be installed and authenticated.
 
 ## Git-style Flow
 
@@ -200,8 +308,6 @@ Options:
 - `--title "Add OAuth"` — custom PR title (default: context name)
 - `--body "..."` — custom PR body (default: task description)
 
-Requires [GitHub CLI](https://cli.github.com/) (`gh`) to be installed and authenticated.
-
 ## Orchestra
 
 Define a multi-task plan in YAML and run them all at once:
@@ -252,6 +358,7 @@ wiz create feat-x --template my-template
 | `wiz run <name> -- <cmd...>` | Run command inside context |
 | `wiz diff <name> [--stat] [--all]` | Show diff vs base branch |
 | `wiz log <name> [-n N] [--all]` | Show git log for a context |
+| `wiz watch [--interval <dur>]` | Live monitoring dashboard |
 | `wiz finish [<name>] [--merge]` | Push, create PR, clean up |
 | `wiz orchestra <file.yaml>` | Run multi-task plan |
 | `wiz path <name>` | Print context filesystem path |

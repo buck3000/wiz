@@ -1,6 +1,6 @@
 # Wiz: 0-to-60 Power User Guide
 
-Wiz wraps git worktrees into named **contexts** — isolated working directories with their own branch, index, and HEAD. You can run three Claude Code sessions, each on a different feature branch, in parallel terminal tabs, and finish them all into PRs without ever losing track of what's where.
+Wiz wraps git worktrees into named **contexts** — isolated working directories with their own branch, index, and HEAD. You create contexts, point AI agents at them, monitor progress, and ship the results. Three Claude Code sessions, three feature branches, three terminal tabs — all managed from one place.
 
 This guide covers everything, from first install to orchestrating multi-agent workflows.
 
@@ -158,9 +158,11 @@ Every flag after the wiz-specific ones (`--ctx`, `--base-ok`) is passed through 
 
 ---
 
-## 6. Spawning Terminal Tabs
+## 6. Spawning Agents in Terminal Tabs
 
-This is where wiz gets powerful for parallel work:
+This is where wiz shines — launching AI agents across parallel branches from a single terminal.
+
+### The basics
 
 ```bash
 # Open feat-auth in a new terminal tab
@@ -172,6 +174,44 @@ wiz spawn feat-auth --agent claude
 # Open it with Claude Code and a specific prompt
 wiz spawn feat-auth --agent claude --prompt "Add OAuth login with Google"
 ```
+
+### End-to-end: 3 agents, 3 features
+
+Here's the full workflow for running multiple agents in parallel:
+
+```bash
+# 1. Create contexts with tasks and agent assignments
+wiz create feat-auth    --task "Add OAuth login with Google provider" --agent claude --base main
+wiz create fix-payments --task "Fix Stripe webhook retry logic"       --agent claude --base main
+wiz create refactor-db  --task "Migrate raw SQL queries to sqlc"      --agent claude --base main
+
+# 2. Launch all three agents
+wiz spawn feat-auth
+wiz spawn fix-payments
+wiz spawn refactor-db
+# Three new terminal tabs open, each with Claude Code working on its task
+
+# 3. Monitor from your main terminal while agents work
+wiz watch                      # live dashboard — see all contexts and their status
+wiz list --tasks               # check what each agent is working on
+wiz diff --all                 # quick diff summary across all contexts
+wiz log --all                  # see what commits agents have made
+
+# 4. Dive into a specific context if you need details
+wiz diff feat-auth --stat      # what files changed?
+wiz diff feat-auth             # full diff
+wiz log feat-auth              # commit history
+wiz enter feat-auth            # cd into the worktree to look around
+exit                           # back to your main terminal
+
+# 5. When agents finish, review and ship
+wiz diff --all --stat          # final summary of all changes
+wiz finish feat-auth           # push + create PR + clean up
+wiz finish fix-payments
+wiz finish refactor-db
+```
+
+### Terminal detection
 
 Wiz auto-detects your terminal:
 - **iTerm2** — full support: custom tab title, badge, tab color
@@ -313,6 +353,81 @@ wiz orchestra plan.yaml
 
 This creates all four contexts, then spawns agents respecting dependency order. `auth-backend` and `auth-frontend` spawn immediately (no deps). `auth-tests` waits for both to spawn. `auth-docs` waits for `auth-backend`.
 
+### A larger real-world example
+
+A full-stack feature with backend, frontend, tests, and documentation:
+
+```yaml
+# feature-plan.yaml
+tasks:
+  # Backend work — no dependencies, starts immediately
+  - name: api-endpoints
+    agent: claude
+    prompt: |
+      Add REST endpoints for user notifications:
+      - GET /api/notifications (list, paginated)
+      - POST /api/notifications/:id/read (mark as read)
+      - POST /api/notifications/read-all
+      Use the existing service object pattern in app/services/.
+    base: main
+
+  - name: notification-model
+    agent: claude
+    prompt: |
+      Create the Notification model with:
+      - belongs_to :user
+      - belongs_to :source, polymorphic: true
+      - scopes: unread, recent
+      - migration with proper indexes
+    base: main
+
+  # Frontend — depends on API being defined
+  - name: notification-ui
+    agent: claude
+    prompt: |
+      Build a notification dropdown component:
+      - Bell icon with unread count badge
+      - Dropdown list with infinite scroll
+      - Mark as read on click
+      - "Mark all as read" button
+    depends_on: [api-endpoints]
+
+  # Tests — depend on both backend pieces
+  - name: notification-tests
+    agent: claude
+    prompt: |
+      Write tests for the notification system:
+      - Model specs for Notification
+      - Request specs for the API endpoints
+      - Service specs for NotificationService
+    depends_on: [api-endpoints, notification-model]
+
+  # Docs — depend on everything
+  - name: notification-docs
+    agent: claude
+    prompt: "Document the notification system: API endpoints, model, frontend component"
+    depends_on: [api-endpoints, notification-model, notification-ui]
+```
+
+```bash
+# Launch the full plan
+wiz orchestra feature-plan.yaml
+
+# Monitor progress
+wiz watch                      # live dashboard
+wiz list --tasks               # see what each agent is working on
+wiz diff --all --stat          # see what's changed
+
+# When everything finishes, review and ship
+wiz diff notification-model    # check the migration
+wiz diff api-endpoints         # check the API
+wiz finish api-endpoints
+wiz finish notification-model
+wiz finish notification-ui
+wiz finish notification-tests
+wiz finish notification-docs
+```
+
 ### Plan fields
 
 | Field | Required | Description |
@@ -327,7 +442,168 @@ This creates all four contexts, then spawns agents respecting dependency order. 
 
 ---
 
-## 11. Templates: Reusable Context Configs
+## 11. Reviewing Agent Work
+
+After agents finish their tasks, you need to review what they did before shipping. Here's how to do that efficiently.
+
+### Quick triage across all contexts
+
+```bash
+wiz diff --all --stat          # One-line summary of changes per context
+wiz log --all                  # Recent commits across all contexts
+wiz list --tasks               # Reminder of what each agent was asked to do
+```
+
+This gives you the bird's-eye view: which contexts have changes, how large they are, and what commits were made.
+
+### Deep-dive into a specific context
+
+```bash
+# Read the diff
+wiz diff feat-auth             # Full diff against base branch
+wiz diff feat-auth --stat      # File-level summary
+
+# Read the commit history
+wiz log feat-auth              # What the agent committed and when
+wiz log feat-auth -n 20        # More history if needed
+
+# Enter the context and look around
+wiz enter feat-auth
+ls -la                         # see the file layout
+make test                      # run the test suite
+exit                           # back to main terminal
+
+# Or run commands without entering
+wiz run feat-auth -- make test
+wiz run feat-auth -- go vet ./...
+```
+
+### Decide: ship, fix, or discard
+
+For each context, you have three choices:
+
+**Ship it** — the agent did good work:
+```bash
+wiz finish feat-auth                          # push + PR + clean up
+wiz finish feat-auth --title "Add OAuth"      # with a custom PR title
+```
+
+**Fix it** — mostly good, needs tweaks:
+```bash
+wiz enter feat-auth        # go into the context
+# make your edits
+wiz add -A
+wiz commit -m "Fix edge case in OAuth callback"
+wiz finish                 # then ship
+```
+
+**Discard it** — not usable:
+```bash
+wiz delete feat-auth       # remove the context entirely
+wiz delete feat-auth --force  # skip confirmation
+```
+
+---
+
+## 12. Patterns for AI-Assisted Development
+
+### Spike-and-choose
+
+When you're not sure of the best approach, have two agents try different strategies and pick the winner:
+
+```bash
+# Two agents, two approaches to the same problem
+wiz create cache-redis   --task "Add caching layer using Redis"        --agent claude
+wiz create cache-memory  --task "Add caching layer using in-memory LRU" --agent claude
+
+wiz spawn cache-redis
+wiz spawn cache-memory
+
+# Compare the results
+wiz diff cache-redis --stat
+wiz diff cache-memory --stat
+wiz diff cache-redis          # read the full implementation
+wiz diff cache-memory         # compare approaches
+
+# Ship the one you prefer, discard the other
+wiz finish cache-redis
+wiz delete cache-memory
+```
+
+### Pipeline: sequential dependent tasks
+
+When later work depends on earlier work, use `depends_on` to build a pipeline:
+
+```yaml
+# pipeline.yaml
+tasks:
+  - name: auth-backend
+    agent: claude
+    prompt: "Implement OAuth2 backend with Google provider"
+
+  - name: auth-frontend
+    agent: claude
+    prompt: "Build the login page — the backend OAuth endpoints are already implemented"
+    depends_on: [auth-backend]
+
+  - name: auth-e2e-tests
+    agent: claude
+    prompt: "Write end-to-end tests for the full OAuth login flow"
+    depends_on: [auth-frontend]
+```
+
+```bash
+wiz orchestra pipeline.yaml
+# auth-backend starts immediately
+# auth-frontend starts after auth-backend spawns
+# auth-e2e-tests starts after auth-frontend spawns
+```
+
+### Review loop: agent writes, you review, agent fixes
+
+Use contexts as a tight feedback loop with an agent:
+
+```bash
+# Round 1: agent writes the initial implementation
+wiz create feat-search --task "Add full-text search to the API" --agent claude
+wiz spawn feat-search
+# ... agent works ...
+
+# Review the work
+wiz diff feat-search --stat
+wiz diff feat-search
+
+# Round 2: enter the context and give the agent feedback
+wiz enter feat-search
+claude "The search implementation looks good but it's missing pagination. Add cursor-based pagination to the search endpoint."
+# ... agent fixes ...
+
+# Round 3: check again
+wiz diff feat-search --stat
+# Looks good — ship it
+wiz finish feat-search
+```
+
+### Batch cleanup: finish or discard everything
+
+After a big orchestration run, clean up all contexts at once:
+
+```bash
+# See what's still open
+wiz list --tasks
+
+# Finish the ones you want to keep
+wiz finish auth-backend
+wiz finish auth-frontend
+
+# Discard the rest
+wiz delete auth-tests
+wiz delete auth-docs
+```
+
+---
+
+## 13. Templates: Reusable Context Configs
 
 Save common configurations as templates:
 
@@ -350,7 +626,7 @@ Templates store base branch, agent, and strategy — the things you'd otherwise 
 
 ---
 
-## 12. Interactive Mode
+## 14. Interactive Mode
 
 Run `wiz` with no arguments for an interactive context picker:
 
@@ -371,7 +647,7 @@ The dashboard shows all contexts with their branch, status, and path — useful 
 
 ---
 
-## 13. Environment Variables Reference
+## 15. Environment Variables Reference
 
 ### Set by Wiz (inside a context)
 
@@ -392,7 +668,7 @@ The dashboard shows all contexts with their branch, status, and path — useful 
 
 ---
 
-## 14. Scripting & Automation
+## 16. Scripting & Automation
 
 Wiz's JSON outputs make it scriptable:
 
@@ -418,7 +694,7 @@ cd "$(wiz path feat-auth)"
 
 ---
 
-## 15. Provisioning Strategies
+## 17. Provisioning Strategies
 
 ### Worktree (default, recommended)
 
@@ -446,7 +722,7 @@ Tries worktree first, falls back to clone. This is the default.
 
 ---
 
-## 16. Tips & Patterns
+## 18. Tips & Patterns
 
 ### Parallel feature development
 
@@ -520,10 +796,10 @@ claude "Refactor the API layer to use service objects"
 | `wiz status` | Show active context status |
 | `wiz diff <name>` | Diff context vs base branch |
 | `wiz log <name>` | Show commits since base |
+| `wiz watch` | Live monitoring dashboard |
 | `wiz delete <name>` | Delete a context |
 | `wiz rename <old> <new>` | Rename a context |
 | `wiz path <name>` | Print context filesystem path |
-| `wiz watch` | Live dashboard |
 | `wiz orchestra <file>` | Run multi-task YAML plan |
 | `wiz template save\|list\|delete` | Manage templates |
 | `wiz doctor` | Check environment |
